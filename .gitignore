@@ -1,0 +1,15 @@
+node_modules
+trello_clone/node_modules
+trello_clone/.env
+wordlerize/config.json
+wordlerize/node_modules
+wordlerize/.env
+wordlerize_bot/config.json
+wordlerize_bot/node_modules
+wordlerize_bot/.env
+piano/node_modules
+framed_clone/node_modules
+02.02-initial-setup/node_modules
+02.02-initial-setup/.vscode
+02.02-initial-setup/.nvmrc
+
