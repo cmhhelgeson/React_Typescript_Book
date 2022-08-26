@@ -8,7 +8,16 @@ export type Stroke = {
     color: string;
 }
 
+
+export type CanvasSize = {
+    width: number, 
+    height: number,
+    styleWidth: number, 
+    styleHeight: number
+}
+
 export type RootState = {
+    canvasSize: CanvasSize;
     strokes: Stroke[];
-    currrentStroke: Stroke
+    currentStroke: Stroke
 }
