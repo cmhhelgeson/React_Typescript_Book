@@ -4,6 +4,7 @@ import { beginStroke, currentStrokeSelector, updateStroke } from './features/cur
 import { endStroke } from './features/sharedActions';
 import {clearCanvas, setCanvasSize} from "./utils/drawUtils"
 import { Point, RootState} from './utils/types';
+import { useDragRefWith } from './utils/windowUtils';
 
 import interact from 'interactjs';
 
@@ -23,11 +24,6 @@ const drawStroke = (
   context.moveTo(points[0].x, points[0].y);
   //context.beginPath();
   points.forEach((point, idx) => {
-    /* if (idx % 50 === 0 && idx !== 0) {
-      context.closePath();
-      context.beginPath();
-      context.moveTo(points[idx].x, points[idx].y);
-    } */
     context.lineTo(point.x, point.y);
   })
   //Callings stroke ater moving the line to new point significantly
@@ -173,23 +169,7 @@ function App() {
   }, [currentStroke])
 
 
-  const titleBar = interact('.title-bar').draggable({
-    listeners: {
-      start(event) {
-        console.log("start")
-      },
-      move(event) {
-        if (windowRef.current) {
-          const leftInt = parseInt(windowRef.current.style.left.slice(0, -2))
-          const topInt = parseInt(windowRef.current.style.top.slice(0, -2))
-          windowRef.current.style.left = leftInt + event.dx + 'px';
-          windowRef.current.style.top = topInt + event.dy + 'px';
-        }
-      }
-    }
-  });
-
-
+  useDragRefWith(windowRef, "title-bar")
 
   return (  
     <div className="window" style={{
@@ -217,7 +197,3 @@ function App() {
 }
 
 export default App;
-
-/*onMouseDown={onMouseDownTitleBar}
-        onMouseMove={onMouseMoveTitleBar}
-        onMouseUp={onMouseUpTitleBar} */
