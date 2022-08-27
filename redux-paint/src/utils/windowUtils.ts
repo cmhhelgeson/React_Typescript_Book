@@ -28,7 +28,12 @@ export const dragRefWith = (
               ref.current.style.top = topInt + event.dy + 'px';
             }
           }
-        }
+        }, 
+        modifiers: [
+            interact.modifiers.restrictRect({
+                restriction: {top: 0, left: 0, right: 1000, bottom: 900}
+            })
+        ]
     })
 } 
 
@@ -52,7 +57,13 @@ export const resizeRefWith = (
               ref.current.style.height = `${height}px`
             }
           }
-        }
+        }, 
+        modifiers: [
+            interact.modifiers.restrictSize({
+                min: {width: 500, height: 500},
+                max: {width: 1700, height: 980}
+            })
+        ]
     })
 
 }
