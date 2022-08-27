@@ -4,7 +4,7 @@ import { beginStroke, currentStrokeSelector, updateStroke } from './features/cur
 import { endStroke } from './features/sharedActions';
 import {clearCanvas, setCanvasSize} from "./utils/drawUtils"
 import { Point, RootState} from './utils/types';
-import { useDragRefWith } from './utils/windowUtils';
+import { dragRefWith, resizeRefWith} from './utils/windowUtils';
 
 import interact from 'interactjs';
 
@@ -50,8 +50,6 @@ function App() {
   const dispatch = useDispatch();
 
   const [mouseDown, setMouseDown] = useState<boolean>(false);
-  const [beginOffset, setBeginOffset] = useState<number[]>([0, 0]);
-  const [isMovingWindow, setIsMovingWindow] = useState<boolean>(false);
 
   const startDraw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
     setMouseDown(true);
@@ -90,32 +88,6 @@ function App() {
     img.onload = () => {context.drawImage(img, 0, 0);}
     img.src = imgSrc;
   }
-
-  const onMouseDownTitleBar = ({nativeEvent}: React.MouseEvent<HTMLDivElement>) => {
-    setMouseDown(true);
-    setIsMovingWindow(true);
-    const {clientX, clientY} = nativeEvent;
-    if (windowRef.current) {
-      setBeginOffset([
-        windowRef.current.offsetLeft - clientX,
-        windowRef.current.offsetTop - clientY
-      ]);
-    }
-  }
-
-  const onMouseMoveTitleBar = ({nativeEvent}: React.MouseEvent<HTMLDivElement>) => {
-    if (mouseDown) {
-      const {clientX, clientY} = nativeEvent;
-      if (windowRef.current) {
-        windowRef.current.style.left = clientX + beginOffset[0] + 'px'
-        windowRef.current.style.top = clientY + beginOffset[1] + 'px'
-      }
-    }
-  }
-
-  const onMouseUpTitleBar = ({nativeEvent}: React.MouseEvent<HTMLDivElement>) => {
-    setMouseDown(false);
-  }
   
   const endDraw = () => {
     if (isDrawing) {
@@ -137,7 +109,6 @@ function App() {
       }
       return;
     }
-    //const {offsetX, offsetY} = nativeEvent;
     dispatch(updateStroke({x: offsetX, y: offsetY}));
   }
 
@@ -153,7 +124,9 @@ function App() {
     context.lineCap = "round"
     context.strokeStyle = "black"
     context.lineWidth = 20;
-    clearCanvas(canvas, "white");
+    clearCanvas(canvas, "white")
+    dragRefWith(windowRef, "title-bar")
+    resizeRefWith(windowRef, "window");
 
   }, [])
 
@@ -169,7 +142,6 @@ function App() {
   }, [currentStroke])
 
 
-  useDragRefWith(windowRef, "title-bar")
 
   return (  
     <div className="window" style={{
