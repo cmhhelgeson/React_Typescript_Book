@@ -35,6 +35,10 @@ const currentStrokeSlice = createSlice({
 
 export const currentStroke = currentStrokeSlice.reducer 
 
-export const {beginStroke, updateStroke, setStrokeColor} = currentStrokeSlice.actions
+export const {
+    beginStroke, 
+    updateStroke, 
+    setStrokeColor
+} = currentStrokeSlice.actions
 
 export const currentStrokeSelector = (state: RootState) => state.currentStroke

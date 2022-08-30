@@ -1,11 +1,13 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { currentStroke } from "./features/currentStroke/slice";
 import { strokes } from "./features/strokes/slice";
+import { canvasSize } from "./features/canvasSize/slice"
 
 export const store = configureStore({
     reducer: {
         currentStroke,
-        strokes 
+        strokes,
+        canvasSize
     },
     devTools: true,
 })

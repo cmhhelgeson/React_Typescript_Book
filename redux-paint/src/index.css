@@ -14,8 +14,6 @@ code {
 
 canvas {
   cursor: url(./icons/pencil.png) 0 34, auto;
-  margin-top: 5px;
-  margin-left: 10px;
 }
 
 .resize_cursor {
@@ -97,5 +95,12 @@ canvas {
   width: 100px;
   height: 100px;
   margin-bottom: 10px;
+}
+
+#canvas_wrapper {
+  position: relative;
+  border: 3px solid blue;
+  margin-top: 5px;
+  margin-left: 10px;
 }
 

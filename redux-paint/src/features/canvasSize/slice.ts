@@ -14,12 +14,16 @@ const initialState: RootState["canvasSize"] = {
 }
 
 
-const canvasSizeSlice = createSlice({
+export const canvasSizeSlice = createSlice({
     name: "canvasSize", 
     initialState,
     reducers: {
-        zoom: (state, action: PayloadAction<CanvasSize>) => {
+        changeCanvasSize: (state, action: PayloadAction<CanvasSize>) => {
             state = action.payload;
         }
     },
 });
+
+export const canvasSize = canvasSizeSlice.reducer;
+export const {changeCanvasSize}  = canvasSizeSlice.actions;
+export const canvasSizeSelector = (state: RootState) => state.canvasSize;

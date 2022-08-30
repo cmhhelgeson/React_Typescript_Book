@@ -2,11 +2,12 @@ import React, {useRef, useEffect, useState} from 'react';
 import { useDispatch, useSelector} from 'react-redux';
 import { beginStroke, currentStrokeSelector, updateStroke } from './features/currentStroke/slice';
 import { endStroke } from './features/sharedActions';
-import {clearCanvas, setCanvasSize} from "./utils/drawUtils"
+import {clearCanvas, restoreSnapshot, setCanvasSize} from "./utils/drawUtils"
 import { Point, RootState} from './utils/types';
 import { dragRefWith, resizeRefWith} from './utils/windowUtils';
 
 import interact from 'interactjs';
+import { canvasSizeSelector, changeCanvasSize } from './features/canvasSize/slice';
 
 const WIDTH = 100;
 const HEIGHT = 100;
@@ -46,10 +47,11 @@ function App() {
   //Define state selectors and objects
   const isDrawing = useSelector<RootState>((state) => !!state.currentStroke?.points.length);
   const currentStroke = useSelector(currentStrokeSelector);
-  const canvasSize = useSelector<RootState>((state) => state.canvasSize)
+  const canvasSize = useSelector(canvasSizeSelector)
   const dispatch = useDispatch();
 
   const [mouseDown, setMouseDown] = useState<boolean>(false);
+  const [isDrawSquare, setIsDrawSquare] = useState<boolean>(false);
 
   const startDraw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
     setMouseDown(true);
@@ -57,7 +59,7 @@ function App() {
     dispatch(beginStroke({x: offsetX, y: offsetY}));
   }
 
-  const zoomIn = () => {
+  const expandCanvas = () => {
     const {canvas, context} = getCanvasWithContext();
     if (!canvas || !context) {
       return;
@@ -66,6 +68,11 @@ function App() {
     const imgSrc = canvas.toDataURL();
     const prevWidth: number = canvas.width;
     const prevHeight: number = canvas.height;
+    const newWidth = canvas.width * 1.5;
+    const newHeight = canvas.width * 1.5;
+    dispatch(changeCanvasSize({
+      width: newWidth, styleWidth: newWidth, 
+      height: newHeight, styleHeight: newHeight}))
     setCanvasSize(canvas, canvas.width * 1.5, canvas.height * 1.5);
     clearCanvas(canvas, "white");
     let img = new Image();
@@ -75,7 +82,7 @@ function App() {
     img.src = imgSrc;
   }
   
-  const zoomOut = () => {
+  const shrinkCanvas = () => {
     const {canvas, context} = getCanvasWithContext();
     if (!canvas || !context) {
       return;
@@ -84,9 +91,7 @@ function App() {
     const imgSrc = canvas.toDataURL();
     setCanvasSize(canvas, canvas.width / 1.5, canvas.height / 1.5);
     clearCanvas(canvas, "white");
-    let img = new Image();
-    img.onload = () => {context.drawImage(img, 0, 0);}
-    img.src = imgSrc;
+    restoreSnapshot(canvas, "DATA_URL", imgSrc);
   }
   
   const endDraw = () => {
@@ -100,14 +105,11 @@ function App() {
   const draw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
     const {offsetX, offsetY} = nativeEvent;
     if (!isDrawing) {
-      const {canvas} = getCanvasWithContext();
-      if (!canvas) {
-        return;
-      }
-      if (offsetX >= WIDTH - 20 && offsetY >= HEIGHT - 20) {
-        console.log("zone")
-      }
       return;
+    }
+    if (isDrawSquare) {
+
+
     }
     dispatch(updateStroke({x: offsetX, y: offsetY}));
   }
@@ -127,6 +129,7 @@ function App() {
     clearCanvas(canvas, "white")
     dragRefWith(windowRef, "title-bar")
     resizeRefWith(windowRef, "window");
+    resizeRefWith(canvasRef, "canvas");
 
   }, [])
 
@@ -156,13 +159,19 @@ function App() {
           <button aria-label="Close" />
         </div>
       </div>
-      <canvas 
-        onMouseDown={startDraw}
-        onMouseUp={endDraw}
-        onMouseMove={draw}
-        ref={canvasRef} />
-        <button onClick={zoomIn}>+</button>
-        <button onClick={zoomOut}>-</button>
+      <div 
+        id="canvas_wrapper" 
+        style={{
+          "width": canvasRef.current ? canvasRef.current.width : "100px", 
+          "height": canvasRef.current ? canvasRef.current.height : "100px"}}>
+        <canvas 
+          onMouseDown={startDraw}
+          onMouseUp={endDraw}
+          onMouseMove={draw}
+          ref={canvasRef} />
+      </div>
+      <button style={{"margin": "20px"}} onClick={expandCanvas}>Increase Size</button>
+      <button onClick={shrinkCanvas}>Decrease Size</button>
       
     </div> 
   );
