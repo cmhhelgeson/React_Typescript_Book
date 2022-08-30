@@ -1,3 +1,4 @@
+import {CanvasSize} from "./types"
 
 
 type SnapshotMethod = "DATA_URL" | "IMAGE_DATA"
@@ -16,11 +17,12 @@ export const clearCanvas = (canvas: HTMLCanvasElement, color: string) => {
 }
 
 
-export const setCanvasSize = (canvas: HTMLCanvasElement, width: number, height: number, styleWidth?: number, styleHeight?: number): void => {
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.width = styleWidth ? `${styleWidth}px` : `${width}px`
-    canvas.style.height = styleHeight ? `${styleHeight}px` : `${height}px`
+export const setCanvasSize = (canvas: HTMLCanvasElement, cs: CanvasSize): void => {
+    canvas.width = cs.width;
+    canvas.height = cs.height;
+    canvas.style.width = `${cs.styleWidth}px`
+    canvas.style.height = `${cs.styleHeight}px`
+    console.log("sized");
     canvas.getContext("2d")?.scale(1, 1);
 }
 

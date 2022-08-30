@@ -19,7 +19,11 @@ export const canvasSizeSlice = createSlice({
     initialState,
     reducers: {
         changeCanvasSize: (state, action: PayloadAction<CanvasSize>) => {
-            state = action.payload;
+            const {width, height, styleWidth, styleHeight} = action.payload;
+            state.width = width;
+            state.height = height;
+            state.styleWidth = styleWidth;
+            state.styleHeight = styleHeight;
         }
     },
 });

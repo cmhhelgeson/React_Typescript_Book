@@ -65,21 +65,11 @@ function App() {
       return;
     }
     console.log("zoom")
-    const imgSrc = canvas.toDataURL();
-    const prevWidth: number = canvas.width;
-    const prevHeight: number = canvas.height;
     const newWidth = canvas.width * 1.5;
-    const newHeight = canvas.width * 1.5;
+    const newHeight = canvas.height * 1.5;
     dispatch(changeCanvasSize({
       width: newWidth, styleWidth: newWidth, 
       height: newHeight, styleHeight: newHeight}))
-    setCanvasSize(canvas, canvas.width * 1.5, canvas.height * 1.5);
-    clearCanvas(canvas, "white");
-    let img = new Image();
-    img.onload = () => {
-      context.drawImage(img, 0, 0, prevWidth, prevHeight, 0, 0, prevWidth, prevHeight);
-    }
-    img.src = imgSrc;
   }
   
   const shrinkCanvas = () => {
@@ -89,9 +79,9 @@ function App() {
     }
     console.log("zoom");
     const imgSrc = canvas.toDataURL();
-    setCanvasSize(canvas, canvas.width / 1.5, canvas.height / 1.5);
-    clearCanvas(canvas, "white");
-    restoreSnapshot(canvas, "DATA_URL", imgSrc);
+    dispatch(changeCanvasSize({
+      width: canvas.width / 1.5, styleWidth: canvas.height / 1.5, 
+      height: canvas.width / 1.5, styleHeight: canvas.height / 1.5}))
   }
   
   const endDraw = () => {
@@ -119,7 +109,7 @@ function App() {
     if (!canvas || !context) {
       return;
     }
-    setCanvasSize(canvas, WIDTH, HEIGHT);
+    setCanvasSize(canvas, {width: 100, height: 100, styleWidth: 100, styleHeight: 100});
     //Rounds areas around adjacent points. 
     context.lineJoin = "round"
     context.direction = "ltr"
@@ -144,6 +134,35 @@ function App() {
     })
   }, [currentStroke])
 
+  useEffect(() => {
+    const {canvas, context} = getCanvasWithContext();
+    if (!canvas || !context) {
+      return;
+    }
+    const imgSrc = canvas.toDataURL();
+    const curWidth = canvas.width;
+    const curHeight = canvas.height;
+    //If Canvas will Become Bigger
+    if (curWidth < canvasSize.width) {
+      setCanvasSize(canvas, canvasSize);
+      clearCanvas(canvas, "white");
+      let img = new Image();
+      img.onload = () => {
+        context.drawImage(img, 0, 0, curWidth, curHeight, 0, 0, curWidth, curHeight);
+      }
+      img.src = imgSrc;
+      console.log(canvasSize);
+    }
+    //If Canvas Will Become Smaller
+    if (curWidth > canvasSize.width) {
+      setCanvasSize(canvas, canvasSize);
+      //setCanvasSize(canvas, canvas.width / 1.5, canvas.height / 1.5);
+      clearCanvas(canvas, "white");
+      restoreSnapshot(canvas, "DATA_URL", imgSrc);
+    }
+  }, [canvasSize])
+
+
 
 
   return (  
@@ -162,8 +181,8 @@ function App() {
       <div 
         id="canvas_wrapper" 
         style={{
-          "width": canvasRef.current ? canvasRef.current.width : "100px", 
-          "height": canvasRef.current ? canvasRef.current.height : "100px"}}>
+          "width": canvasSize.width, 
+          "height": canvasSize.height}}>
         <canvas 
           onMouseDown={startDraw}
           onMouseUp={endDraw}
