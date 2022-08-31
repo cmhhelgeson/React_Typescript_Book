@@ -1,0 +1,40 @@
+@import "~xp.css/dist/XP.css";
+
+.colors {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 336px;
+}
+
+.colors_title_bar {
+    font-size: 11px;
+    background: var(--title-bar-bg);
+    padding: 3px 2px 3px 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.colors_title_bar_text {
+    font-weight: bold;
+    color: white;
+    letter-spacing: 0;
+    margin-right: 24px;
+}
+  
+.color {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    box-shadow: inset -1px -1px #fff, inset 1px 1px grey,
+      inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+}
+  
+.colors-panel {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translate3d(-50%, 0, 0);
+    z-index: 10;
+}

@@ -22,7 +22,6 @@ export const setCanvasSize = (canvas: HTMLCanvasElement, cs: CanvasSize): void =
     canvas.height = cs.height;
     canvas.style.width = `${cs.styleWidth}px`
     canvas.style.height = `${cs.styleHeight}px`
-    console.log("sized");
     canvas.getContext("2d")?.scale(1, 1);
 }
 

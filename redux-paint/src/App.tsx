@@ -8,6 +8,7 @@ import { dragRefWith, resizeRefWith} from './utils/windowUtils';
 
 import interact from 'interactjs';
 import { canvasSizeSelector, changeCanvasSize } from './features/canvasSize/slice';
+import { ColorPanel } from './components/ColorPanel';
 
 const WIDTH = 100;
 const HEIGHT = 100;
@@ -33,11 +34,17 @@ const drawStroke = (
   context.closePath();
 }
 
+const lerp = (a: number, b: number, t: number) => {
+  return a + (b - a) * t;
+}
+
 
 function App() {
   //JSX Element Refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const titleBarRef = useRef<HTMLDivElement>(null);
 
   //Utilities
   const getCanvasWithContext = (canvas = canvasRef.current) => {
@@ -50,8 +57,21 @@ function App() {
   const canvasSize = useSelector(canvasSizeSelector)
   const dispatch = useDispatch();
 
+
+  //Local State Variables
   const [mouseDown, setMouseDown] = useState<boolean>(false);
   const [isDrawSquare, setIsDrawSquare] = useState<boolean>(false);
+  const [prevPointerEvent, setPrevPointerEvent] = useState<React.PointerEvent |null>(null)
+
+  const logTangentialPressure = (e: React.PointerEvent) => {
+    console.log(e.clientX);
+    console.log(e.clientY);
+    if (prevPointerEvent) {
+      console.log(lerp(prevPointerEvent.clientX, e.clientX, 0.5));
+    }
+    setPrevPointerEvent(e);
+
+  }
 
   const startDraw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
     setMouseDown(true);
@@ -114,12 +134,13 @@ function App() {
     context.lineJoin = "round"
     context.direction = "ltr"
     context.lineCap = "round"
-    context.strokeStyle = "black"
+    context.strokeStyle = "red"
     context.lineWidth = 20;
     clearCanvas(canvas, "white")
-    dragRefWith(windowRef, "title-bar")
+    dragRefWith(windowRef, titleBarRef)
     resizeRefWith(windowRef, "window");
     resizeRefWith(canvasRef, "canvas");
+    resizeRefWith(canvasContainerRef, "canvas_wrapper")
 
   }, [])
 
@@ -172,18 +193,22 @@ function App() {
       "position": "relative", 
       "top": "10px",
       "left": "10px"}} ref={windowRef}>
-      <div className='title-bar'>
+      <div className='title-bar' ref={titleBarRef}>
         <div className='title-bar-text' style={{"margin": "0.25rem"}}>Redux Paint</div>
         <div className="title-bar-controls">
           <button aria-label="Close" />
         </div>
       </div>
+      <ColorPanel></ColorPanel>
       <div 
-        id="canvas_wrapper" 
+        className="canvas_wrapper" 
         style={{
           "width": canvasSize.width, 
-          "height": canvasSize.height}}>
+          "height": canvasSize.height}}
+        ref={canvasContainerRef}
+      >
         <canvas 
+          onPointerDown={logTangentialPressure}
           onMouseDown={startDraw}
           onMouseUp={endDraw}
           onMouseMove={draw}

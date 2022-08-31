@@ -3,6 +3,9 @@ import { currentStroke } from "./features/currentStroke/slice";
 import { strokes } from "./features/strokes/slice";
 import { canvasSize } from "./features/canvasSize/slice"
 
+
+
+
 export const store = configureStore({
     reducer: {
         currentStroke,
@@ -14,3 +17,5 @@ export const store = configureStore({
 
 //Types the specific dispatch we expect from our store
 export type AppDispatch = typeof store.dispatch;
+
+

@@ -14,7 +14,7 @@ const initialState: RootState["canvasSize"] = {
 }
 
 
-export const canvasSizeSlice = createSlice({
+const canvasSizeSlice = createSlice({
     name: "canvasSize", 
     initialState,
     reducers: {
