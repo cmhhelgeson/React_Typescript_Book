@@ -62,6 +62,9 @@ function App() {
   const [mouseDown, setMouseDown] = useState<boolean>(false);
   const [isDrawSquare, setIsDrawSquare] = useState<boolean>(false);
   const [prevPointerEvent, setPrevPointerEvent] = useState<React.PointerEvent |null>(null)
+  const [mouseReTarget, setMouseReTarget] = useState<number>(1)
+  const[drawScale, setDrawScale] = useState<number>(1);
+  const[canvasScaleFactor, setCanvasScaleFactor] = useState<number>(1)
 
   const logTangentialPressure = (e: React.PointerEvent) => {
     console.log(e.clientX);
@@ -76,7 +79,7 @@ function App() {
   const startDraw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
     setMouseDown(true);
     const {offsetX, offsetY} = nativeEvent;
-    dispatch(beginStroke({x: offsetX, y: offsetY}));
+    dispatch(beginStroke({x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}));
   }
 
   const expandCanvas = () => {
@@ -85,8 +88,8 @@ function App() {
       return;
     }
     console.log("zoom")
-    const newWidth = canvas.width * 1.5;
-    const newHeight = canvas.height * 1.5;
+    const newWidth = canvas.width * 2;
+    const newHeight = canvas.height * 2;
     dispatch(changeCanvasSize({
       width: newWidth, styleWidth: newWidth, 
       height: newHeight, styleHeight: newHeight}))
@@ -99,9 +102,10 @@ function App() {
     }
     console.log("zoom");
     const imgSrc = canvas.toDataURL();
+    //Since the canvas size doesn't change this will only change once
     dispatch(changeCanvasSize({
-      width: canvas.width / 1.5, styleWidth: canvas.height / 1.5, 
-      height: canvas.width / 1.5, styleHeight: canvas.height / 1.5}))
+      width: canvas.width / 2, styleWidth: canvas.height / 2, 
+      height: canvas.width / 2, styleHeight: canvas.height / 2}))
   }
   
   const endDraw = () => {
@@ -110,6 +114,40 @@ function App() {
       dispatch(endStroke(currentStroke));
       return;
     }
+  }
+
+  const zoomOut = () => {
+    const {canvas, context} = getCanvasWithContext();
+    if (!context || !canvas) {
+      return;
+    }
+    context.scale(drawScale / 2, drawScale/2);
+    setDrawScale(drawScale / 2);
+    setMouseReTarget(mouseReTarget * 0.5);
+    const curCanvasWidth = canvas.width;
+    const curCanvasHeight = canvas.height;
+    const scale = canvasScaleFactor * 2;
+    dispatch(changeCanvasSize({
+      width: curCanvasWidth, styleWidth: curCanvasWidth / scale, 
+      height: curCanvasHeight, styleHeight: curCanvasHeight / scale}))
+    setCanvasScaleFactor(scale);
+  }
+
+  const zoomIn = () => {
+    const {canvas, context} = getCanvasWithContext();
+    if (!context || !canvas) {
+      return;
+    }
+    context.scale(drawScale * 2, drawScale * 2);
+    setDrawScale(drawScale * 2);
+    setMouseReTarget(mouseReTarget * 2);
+    const curCanvasWidth = canvas.width;
+    const curCanvasHeight = canvas.height;
+    const scale = canvasScaleFactor / 2;
+    dispatch(changeCanvasSize({
+      width: curCanvasWidth, styleWidth: curCanvasWidth / scale, 
+      height: curCanvasHeight, styleHeight: curCanvasHeight / scale}))
+    setCanvasScaleFactor(scale);
   }
 
   const draw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
@@ -121,7 +159,7 @@ function App() {
 
 
     }
-    dispatch(updateStroke({x: offsetX, y: offsetY}));
+    dispatch(updateStroke({x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}));
   }
 
   useEffect(() => {
@@ -138,9 +176,9 @@ function App() {
     context.lineWidth = 20;
     clearCanvas(canvas, "white")
     dragRefWith(windowRef, titleBarRef)
-    resizeRefWith(windowRef, "window");
-    resizeRefWith(canvasRef, "canvas");
-    resizeRefWith(canvasContainerRef, "canvas_wrapper")
+    resizeRefWith(windowRef, windowRef);
+    //resizeRefWith(canvasRef, "canvas");
+    resizeRefWith(canvasContainerRef, canvasContainerRef);
 
   }, [])
 
@@ -157,12 +195,17 @@ function App() {
 
   useEffect(() => {
     const {canvas, context} = getCanvasWithContext();
+    console.log(canvasSize)
     if (!canvas || !context) {
+      console.log("cnt find")
       return;
     }
     const imgSrc = canvas.toDataURL();
     const curWidth = canvas.width;
     const curHeight = canvas.height;
+    const curStyleWidth = parseInt(canvas.style.width.slice(0, -2));
+    const curStyleHeight = parseInt(canvas.style.height.slice(0, -2));
+
     //If Canvas will Become Bigger
     if (curWidth < canvasSize.width) {
       setCanvasSize(canvas, canvasSize);
@@ -173,6 +216,7 @@ function App() {
       }
       img.src = imgSrc;
       console.log(canvasSize);
+      return;
     }
     //If Canvas Will Become Smaller
     if (curWidth > canvasSize.width) {
@@ -180,13 +224,22 @@ function App() {
       //setCanvasSize(canvas, canvas.width / 1.5, canvas.height / 1.5);
       clearCanvas(canvas, "white");
       restoreSnapshot(canvas, "DATA_URL", imgSrc);
+      return;
+    }
+    if (curStyleWidth !== canvasSize.styleWidth) {
+      setCanvasSize(canvas, canvasSize)
+      let img = new Image();
+      img.onload = () => {
+        context.drawImage(img, 0, 0, curWidth, curHeight, 0, 0, canvas.width, canvas.height);
+      }
+      img.src = imgSrc;
     }
   }, [canvasSize])
 
 
 
 
-  return (  
+  return (<div>
     <div className="window" style={{
       "height": "500px", 
       "width": "500px", 
@@ -199,7 +252,6 @@ function App() {
           <button aria-label="Close" />
         </div>
       </div>
-      <ColorPanel></ColorPanel>
       <div 
         className="canvas_wrapper" 
         style={{
@@ -215,9 +267,12 @@ function App() {
           ref={canvasRef} />
       </div>
       <button style={{"margin": "20px"}} onClick={expandCanvas}>Increase Size</button>
-      <button onClick={shrinkCanvas}>Decrease Size</button>
-      
+      <button style={{"margin": "20px"}} onClick={shrinkCanvas}>Decrease Size</button>    
+      <button style={{"margin": "20px"}} onClick={zoomOut}>Zoom Out</button>
+      <button style={{"margin": "20px"}}>Zoom In</button>
     </div> 
+    <ColorPanel/>
+    </div>
   );
 }
 
