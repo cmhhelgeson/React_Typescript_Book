@@ -4,12 +4,10 @@ import { beginStroke, currentStrokeSelector, updateStroke } from './features/cur
 import { endStroke } from './features/sharedActions';
 import {clearCanvas, restoreSnapshot, setCanvasSize, drawStroke} from "./utils/drawUtils"
 import { Point, RootState} from './utils/types';
-import { dragRefWith, resizeRefWith} from './utils/windowUtils';
-import interact from 'interactjs';
+import {resizeRefWith} from './utils/windowUtils';
 import { canvasSizeSelector, changeCanvasSize } from './features/canvasSize/slice';
 import { ColorPanel } from './components/ColorPanel';
 import { GenericXPWindow } from './components/GenericXPWindow';
-
 
 const WIDTH = 100;
 const HEIGHT = 100;
@@ -140,7 +138,11 @@ function App() {
     context.lineWidth = 20;
     clearCanvas(canvas, "white")
     //resizeRefWith(canvasRef, "canvas");
-    resizeRefWith(canvasContainerRef, canvasContainerRef);
+    resizeRefWith(
+      canvasContainerRef, canvasContainerRef, 
+      canvasSize.width, canvasSize.height, 
+      1000, 800 
+    );
 
   }, [])
 
@@ -206,8 +208,8 @@ function App() {
       <div 
         className="canvas_wrapper" 
         style={{
-          "width": canvasSize.width, 
-          "height": canvasSize.height}}
+          "width": canvasSize.styleWidth, 
+          "height": canvasSize.styleHeight}}
         ref={canvasContainerRef}
       >
         <canvas 

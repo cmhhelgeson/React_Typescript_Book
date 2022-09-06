@@ -40,7 +40,10 @@ export const dragRefWith = (
 export const resizeRefWith = (
   resizedRef: React.RefObject<HTMLElement>, 
   resizeWith: React.RefObject<HTMLElement>,
-  dispatchActionType?: AppAction
+  restrictX: number, 
+  restrictY: number, 
+  restrictWidth: number,
+  restrictHeight: number
 ): void => {
   if (!resizedRef.current || !resizeWith.current) {
       return;
@@ -59,8 +62,10 @@ export const resizeRefWith = (
       }, 
       modifiers: [
           interact.modifiers.restrictSize({
-              min: {width: 500, height: 500},
-              max: {width: 1700, height: 980}
+              //Min bounds of resizable object
+              min: {width: restrictX, height: restrictY},
+              //Max bounds of resizable object
+              max: {width: restrictWidth, height: restrictHeight}
           })
       ]
   })

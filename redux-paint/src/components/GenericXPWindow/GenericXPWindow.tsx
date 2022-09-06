@@ -5,22 +5,32 @@ import { dragRefWith, resizeRefWith} from '../../utils/windowUtils';
 type GenericXPWindowProps = {
     text: string
     children?: React.ReactNode
+    width?: number
+    height?: number
 }
 
 export const GenericXPWindow = (
-    {text, children}: GenericXPWindowProps
+    {text, children, width, height}: GenericXPWindowProps
 ) => {
     const windowRef = useRef<HTMLDivElement>(null);
     const titleBarRef = useRef<HTMLDivElement>(null);
+
+    //TODO: Find way to change restrictions when browser window is resized
     useEffect(() => {
         dragRefWith(windowRef, titleBarRef)
-        resizeRefWith(windowRef, windowRef);
+        if (windowRef.current) {
+            resizeRefWith(windowRef, windowRef, 
+                parseInt(windowRef.current.style.width.slice(0, -2)), 
+                parseInt(windowRef.current.style.height.slice(0, -2)),
+                window.innerWidth - 100, window.innerHeight - 100
+            );
+        }
     }, [])
 
     return (
         <div className="window" style={{
-            "height": "500px", 
-            "width": "500px", 
+            "height": height ? `${height}px`: "500px", 
+            "width": width ? `${width}px` : "500px", 
             "position": "relative", 
             "top": "10px",
             "left": "10px"}} ref={windowRef}>
