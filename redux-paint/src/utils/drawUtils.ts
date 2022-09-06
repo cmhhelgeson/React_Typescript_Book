@@ -1,4 +1,4 @@
-import {CanvasSize} from "./types"
+import {CanvasSize, Point} from "./types"
 
 
 type SnapshotMethod = "DATA_URL" | "IMAGE_DATA"
@@ -52,6 +52,27 @@ export const restoreSnapshot = (canvas: HTMLCanvasElement, method: SnapshotMetho
 
 
 }
+
+export const drawStroke = (
+    context: CanvasRenderingContext2D,
+    points: Point[],
+    color: string
+  ) => {
+    if (!points.length) {
+      return
+    }
+    context.strokeStyle = color;
+    context.beginPath();
+    context.moveTo(points[0].x, points[0].y);
+    //context.beginPath();
+    points.forEach((point, idx) => {
+      context.lineTo(point.x, point.y);
+    })
+    //Callings stroke ater moving the line to new point significantly
+    //Improves performance
+    context.stroke();
+    context.closePath();
+  }
 
 
 //export const clearCanvas = fillCanvas(canvas, "white");

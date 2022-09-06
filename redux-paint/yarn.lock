@@ -3291,6 +3291,13 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
+croquis.js@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/croquis.js/-/croquis.js-0.0.3.tgz#b2e6631a1f19c1a4fdfdb22938847648d1a6ea6a"
+  integrity sha512-r7tWj/dke3s5pLpbakXsnch2L+M4uqRfUPAcynh29IqowFt5mN4qmRfVsLRA3jQ74GNbBJSUSCnyJHJ57g9/iw==
+  dependencies:
+    polished "^3.6.3"
+
 cross-spawn@^7.0.2, cross-spawn@^7.0.3:
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.3.tgz#f73a85b9d5d41d045551c177e2882d4ac85728a6"
@@ -6574,6 +6581,13 @@ pkg-up@^3.1.0:
   integrity sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==
   dependencies:
     find-up "^3.0.0"
+
+polished@^3.6.3:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/polished/-/polished-3.7.2.tgz#ec5ddc17a7d322a574d5e10ddd2a6f01d3e767d1"
+  integrity sha512-pQKtpZGmsZrW8UUpQMAnR7s3ppHeMQVNyMDKtUyKwuvDmklzcEyM5Kllb3JyE/sE/x7arDmyd35i+4vp99H6sQ==
+  dependencies:
+    "@babel/runtime" "^7.12.5"
 
 postcss-attribute-case-insensitive@^5.0.2:
   version "5.0.2"

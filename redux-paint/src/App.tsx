@@ -2,49 +2,22 @@ import React, {useRef, useEffect, useState} from 'react';
 import { useDispatch, useSelector} from 'react-redux';
 import { beginStroke, currentStrokeSelector, updateStroke } from './features/currentStroke/slice';
 import { endStroke } from './features/sharedActions';
-import {clearCanvas, restoreSnapshot, setCanvasSize} from "./utils/drawUtils"
+import {clearCanvas, restoreSnapshot, setCanvasSize, drawStroke} from "./utils/drawUtils"
 import { Point, RootState} from './utils/types';
 import { dragRefWith, resizeRefWith} from './utils/windowUtils';
-
 import interact from 'interactjs';
 import { canvasSizeSelector, changeCanvasSize } from './features/canvasSize/slice';
 import { ColorPanel } from './components/ColorPanel';
+import { GenericXPWindow } from './components/GenericXPWindow';
+
 
 const WIDTH = 100;
 const HEIGHT = 100;
 
-const drawStroke = (
-  context: CanvasRenderingContext2D,
-  points: Point[],
-  color: string
-) => {
-  if (!points.length) {
-    return
-  }
-  context.strokeStyle = color;
-  context.beginPath();
-  context.moveTo(points[0].x, points[0].y);
-  //context.beginPath();
-  points.forEach((point, idx) => {
-    context.lineTo(point.x, point.y);
-  })
-  //Callings stroke ater moving the line to new point significantly
-  //Improves performance
-  context.stroke();
-  context.closePath();
-}
-
-const lerp = (a: number, b: number, t: number) => {
-  return a + (b - a) * t;
-}
-
-
 function App() {
   //JSX Element Refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const windowRef = useRef<HTMLDivElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const titleBarRef = useRef<HTMLDivElement>(null);
 
   //Utilities
   const getCanvasWithContext = (canvas = canvasRef.current) => {
@@ -66,22 +39,30 @@ function App() {
   const[drawScale, setDrawScale] = useState<number>(1);
   const[canvasScaleFactor, setCanvasScaleFactor] = useState<number>(1)
 
-  const logTangentialPressure = (e: React.PointerEvent) => {
-    console.log(e.clientX);
-    console.log(e.clientY);
-    if (prevPointerEvent) {
-      console.log(lerp(prevPointerEvent.clientX, e.clientX, 0.5));
-    }
-    setPrevPointerEvent(e);
-
-  }
-
+  //INTERNAL DRAWING FUNCTIONS
   const startDraw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
     setMouseDown(true);
     const {offsetX, offsetY} = nativeEvent;
     dispatch(beginStroke({x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}));
   }
 
+  const endDraw = () => {
+    if (isDrawing) {
+      setMouseDown(false);
+      dispatch(endStroke(currentStroke));
+      return;
+    }
+  }
+
+  const draw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
+    const {offsetX, offsetY} = nativeEvent;
+    if (!isDrawing) {
+      return;
+    }
+    dispatch(updateStroke({x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}));
+  }
+
+  //CANVAS RESIZING AND EXPANSION FUNCTIONS
   const expandCanvas = () => {
     const {canvas, context} = getCanvasWithContext();
     if (!canvas || !context) {
@@ -108,13 +89,7 @@ function App() {
       height: canvas.width / 2, styleHeight: canvas.height / 2}))
   }
   
-  const endDraw = () => {
-    if (isDrawing) {
-      setMouseDown(false);
-      dispatch(endStroke(currentStroke));
-      return;
-    }
-  }
+
 
   const zoomOut = () => {
     const {canvas, context} = getCanvasWithContext();
@@ -150,18 +125,7 @@ function App() {
     setCanvasScaleFactor(scale);
   }
 
-  const draw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
-    const {offsetX, offsetY} = nativeEvent;
-    if (!isDrawing) {
-      return;
-    }
-    if (isDrawSquare) {
-
-
-    }
-    dispatch(updateStroke({x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}));
-  }
-
+  //CONDITIONAL EFFECTS
   useEffect(() => {
     const {canvas, context} = getCanvasWithContext();
     if (!canvas || !context) {
@@ -175,8 +139,6 @@ function App() {
     context.strokeStyle = "red"
     context.lineWidth = 20;
     clearCanvas(canvas, "white")
-    dragRefWith(windowRef, titleBarRef)
-    resizeRefWith(windowRef, windowRef);
     //resizeRefWith(canvasRef, "canvas");
     resizeRefWith(canvasContainerRef, canvasContainerRef);
 
@@ -240,18 +202,7 @@ function App() {
 
 
   return (<div>
-    <div className="window" style={{
-      "height": "500px", 
-      "width": "500px", 
-      "position": "relative", 
-      "top": "10px",
-      "left": "10px"}} ref={windowRef}>
-      <div className='title-bar' ref={titleBarRef}>
-        <div className='title-bar-text' style={{"margin": "0.25rem"}}>Redux Paint</div>
-        <div className="title-bar-controls">
-          <button aria-label="Close" />
-        </div>
-      </div>
+    <GenericXPWindow text={"Paint"}>
       <div 
         className="canvas_wrapper" 
         style={{
@@ -260,7 +211,6 @@ function App() {
         ref={canvasContainerRef}
       >
         <canvas 
-          onPointerDown={logTangentialPressure}
           onMouseDown={startDraw}
           onMouseUp={endDraw}
           onMouseMove={draw}
@@ -269,8 +219,8 @@ function App() {
       <button style={{"margin": "20px"}} onClick={expandCanvas}>Increase Size</button>
       <button style={{"margin": "20px"}} onClick={shrinkCanvas}>Decrease Size</button>    
       <button style={{"margin": "20px"}} onClick={zoomOut}>Zoom Out</button>
-      <button style={{"margin": "20px"}}>Zoom In</button>
-    </div> 
+      <button style={{"margin": "20px"}} onClick={zoomIn}>Zoom In</button>
+    </GenericXPWindow>
     <ColorPanel/>
     </div>
   );
