@@ -1,4 +1,8 @@
 import {createAction} from "@reduxjs/toolkit"
 import { Stroke } from "../utils/types"
 
-export const endStroke = createAction<Stroke>("endStroke");
+type EndStrokePayload = {
+    stroke: Stroke,
+    historyIndex: number
+}
+export const endStroke = createAction<EndStrokePayload>("endStroke");

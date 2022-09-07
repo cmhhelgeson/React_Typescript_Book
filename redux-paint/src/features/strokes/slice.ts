@@ -10,6 +10,7 @@ type EndStrokePayload = {
     stroke: Stroke
     historyIndex: number
 }
+
 const initialState: RootState["strokes"] = [];
 
 const strokesSlice = createSlice({
@@ -17,9 +18,13 @@ const strokesSlice = createSlice({
     initialState, 
     reducers: {}, 
     extraReducers: (builder) => {
-        builder.addCase(endStroke, (state, action: PayloadAction<Stroke>) => {
-            const stroke = action.payload;
-            state.push(stroke);
+        builder.addCase(endStroke, (state, action: PayloadAction<EndStrokePayload>) => {
+            const {stroke, historyIndex} = action.payload;
+            if (historyIndex === 0) {
+                state.push(stroke);
+            } else {
+                state.splice(-historyIndex, historyIndex, stroke)
+            }
         })
     }
 })

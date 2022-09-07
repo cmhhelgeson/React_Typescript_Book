@@ -16,7 +16,6 @@ import {
   historyIndexSelector
 } from './features/historyIndex/slice';
 import { 
-  strokes,
   strokesLengthSelector, 
   strokesSelector
 } from './features/strokes/slice';
@@ -72,7 +71,7 @@ function App() {
   const endDraw = () => {
     if (isDrawing) {
       setMouseDown(false);
-      dispatch(endStroke(currentStroke));
+      dispatch(endStroke({stroke: currentStroke, historyIndex: historyIndex}));
       return;
     }
   }
@@ -94,7 +93,7 @@ function App() {
     if (!canvas || !context) {
       return;
     }
-    const bristleCount = Math.round(20 / 3);
+    //const bristleCount = Math.round(20 / 3);
     const gap = 20;
     dispatch(updateStroke({
       x: (offsetX + 0 * gap) / mouseReTarget, 
@@ -144,6 +143,7 @@ function App() {
 
 
   const onUndo = () => {
+    console.log("Undid")
     dispatch(undo(strokesLength));
   }
   
@@ -224,10 +224,12 @@ function App() {
       return;
     }
 
+    console.log("History Index Effect")
+
     requestAnimationFrame(() => {
       clearCanvas(canvas, "white")
-      strokes.slice(0, strokes.length - historyIndex).
-      forEach((stroke) => {
+      strokes.slice(0, strokes.length - historyIndex)
+      .forEach((stroke) => {
         drawStroke(context, stroke.points, stroke.color)
       })
 
