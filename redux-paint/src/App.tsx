@@ -60,6 +60,36 @@ function App() {
     dispatch(updateStroke({x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}));
   }
 
+  const drawComb = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
+    const {offsetX, offsetY} = nativeEvent;
+    if (!isDrawing) {
+      return;
+    }
+    const {canvas, context} = getCanvasWithContext();
+    if (!canvas || !context) {
+      return;
+    }
+    const bristleCount = Math.round(20 / 3);
+    const gap = 20;
+    dispatch(updateStroke({
+      x: (offsetX + 0 * gap) / mouseReTarget, 
+      y: (offsetY + 0 * gap) / mouseReTarget
+    }));
+    dispatch(updateStroke({
+      x: (offsetX + 1 * gap) / mouseReTarget, 
+      y: (offsetY + 1 * gap) / mouseReTarget
+    }));
+    dispatch(updateStroke({
+      x: (offsetX + 2 * gap) / mouseReTarget, 
+      y: (offsetY + 2 * gap) / mouseReTarget
+    }));
+    dispatch(updateStroke({
+      x: (offsetX + 3 * gap) / mouseReTarget, 
+      y: (offsetY + 3 * gap) / mouseReTarget
+    }));
+
+  }
+
   //CANVAS RESIZING AND EXPANSION FUNCTIONS
   const expandCanvas = () => {
     const {canvas, context} = getCanvasWithContext();
@@ -215,7 +245,7 @@ function App() {
         <canvas 
           onMouseDown={startDraw}
           onMouseUp={endDraw}
-          onMouseMove={draw}
+          onMouseMove={drawComb}
           ref={canvasRef} />
       </div>
       <button style={{"margin": "20px"}} onClick={expandCanvas}>Increase Size</button>
