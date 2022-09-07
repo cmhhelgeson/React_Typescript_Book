@@ -4,6 +4,12 @@ import { createSlice, PayloadAction} from "@reduxjs/toolkit";
 import { endStroke } from "../sharedActions";
 import { Stroke } from "../../utils/types";
 
+
+
+type EndStrokePayload = {
+    stroke: Stroke
+    historyIndex: number
+}
 const initialState: RootState["strokes"] = [];
 
 const strokesSlice = createSlice({
@@ -19,5 +25,5 @@ const strokesSlice = createSlice({
 })
 
 export const strokes = strokesSlice.reducer;
-
 export const strokesSelector = (state: RootState) => state.strokes;
+export const strokesLengthSelector = (state: RootState) => state.strokes.length;

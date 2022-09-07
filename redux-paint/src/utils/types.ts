@@ -37,4 +37,5 @@ export type RootState = {
     canvasSize: CanvasSize;
     strokes: Stroke[];
     currentStroke: Stroke
+    historyIndex: number
 }

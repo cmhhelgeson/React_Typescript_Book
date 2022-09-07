@@ -1,13 +1,37 @@
+/* REACT IMPORTS */
 import React, {useRef, useEffect, useState} from 'react';
 import { useDispatch, useSelector} from 'react-redux';
-import { beginStroke, currentStrokeSelector, updateStroke } from './features/currentStroke/slice';
-import { endStroke } from './features/sharedActions';
+/* REDUCER FEATURES */
+import { 
+  beginStroke, 
+  currentStrokeSelector, 
+  updateStroke
+} from './features/currentStroke/slice';
+import { 
+  canvasSizeSelector, 
+  changeCanvasSize 
+} from './features/canvasSize/slice';
+import { 
+  undo, 
+  historyIndexSelector
+} from './features/historyIndex/slice';
+import { 
+  strokes,
+  strokesLengthSelector, 
+  strokesSelector
+} from './features/strokes/slice';
+import { 
+  endStroke 
+} from './features/sharedActions';
+
+/* UTILITIES */
 import {clearCanvas, restoreSnapshot, setCanvasSize, drawStroke} from "./utils/drawUtils"
 import { Point, RootState} from './utils/types';
 import {resizeRefWith} from './utils/windowUtils';
-import { canvasSizeSelector, changeCanvasSize } from './features/canvasSize/slice';
+/* COMPONENTS */
 import { ColorPanel } from './components/ColorPanel';
 import { GenericXPWindow } from './components/GenericXPWindow';
+
 
 const WIDTH = 100;
 const HEIGHT = 100;
@@ -25,15 +49,16 @@ function App() {
   //Define state selectors and objects
   const isDrawing = useSelector<RootState>((state) => !!state.currentStroke?.points.length);
   const currentStroke = useSelector(currentStrokeSelector);
+  const strokes = useSelector(strokesSelector);
   const canvasSize = useSelector(canvasSizeSelector)
+  const historyIndex = useSelector(historyIndexSelector);
+  const strokesLength = useSelector(strokesLengthSelector)
   const dispatch = useDispatch();
 
 
   //Local State Variables
   const [mouseDown, setMouseDown] = useState<boolean>(false);
-  const [isDrawSquare, setIsDrawSquare] = useState<boolean>(false);
-  const [prevPointerEvent, setPrevPointerEvent] = useState<React.PointerEvent |null>(null)
-  const [mouseReTarget, setMouseReTarget] = useState<number>(1)
+  const [mouseReTarget, setMouseReTarget] = useState<number>(1) //don't use this
   const[drawScale, setDrawScale] = useState<number>(1);
   const[canvasScaleFactor, setCanvasScaleFactor] = useState<number>(1)
 
@@ -116,6 +141,11 @@ function App() {
       width: canvas.width / 2, styleWidth: canvas.height / 2, 
       height: canvas.width / 2, styleHeight: canvas.height / 2}))
   }
+
+
+  const onUndo = () => {
+    dispatch(undo(strokesLength));
+  }
   
 
 
@@ -187,6 +217,24 @@ function App() {
     })
   }, [currentStroke])
 
+
+  useEffect(() => {
+    const {canvas, context} = getCanvasWithContext();
+    if (!canvas || !context) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      clearCanvas(canvas, "white")
+      strokes.slice(0, strokes.length - historyIndex).
+      forEach((stroke) => {
+        drawStroke(context, stroke.points, stroke.color)
+      })
+
+    })
+
+  }, [historyIndex])
+
   useEffect(() => {
     const {canvas, context} = getCanvasWithContext();
     console.log(canvasSize)
@@ -252,6 +300,7 @@ function App() {
       <button style={{"margin": "20px"}} onClick={shrinkCanvas}>Decrease Size</button>    
       <button style={{"margin": "20px"}} onClick={zoomOut}>Zoom Out</button>
       <button style={{"margin": "20px"}} onClick={zoomIn}>Zoom In</button>
+      <button style={{"margin": "20px"}} onClick={onUndo}>Undo</button>
     </GenericXPWindow>
     <ColorPanel/>
     </div>
