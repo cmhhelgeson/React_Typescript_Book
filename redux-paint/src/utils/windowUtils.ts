@@ -1,9 +1,10 @@
-import React, { Ref } from "react";
+import React, { ForwardedRef } from "react";
 import interact from "interactjs";
 import {InteractEvent} from "@interactjs/core/InteractEvent"
+import { clearCanvas, setCanvasSize } from "./drawUtils";
 
-import { AppAction } from "../actions";
-import { useAppDispatch } from "../hooks";
+
+
 
 
 export const dragRefWith = (
@@ -26,7 +27,8 @@ export const dragRefWith = (
               draggedRef.current.style.left = leftInt + event.dx + 'px';
               draggedRef.current.style.top = topInt + event.dy + 'px';
             }
-          }
+          },
+          
         }, 
         modifiers: [
             interact.modifiers.restrictRect({
@@ -43,7 +45,9 @@ export const resizeRefWith = (
   restrictX: number, 
   restrictY: number, 
   restrictWidth: number,
-  restrictHeight: number
+  restrictHeight: number, 
+  startCallback?: React.Dispatch<React.SetStateAction<boolean>>,
+  endCallback?: React.Dispatch<React.SetStateAction<boolean>>
 ): void => {
   if (!resizedRef.current || !resizeWith.current) {
       return;
@@ -52,12 +56,30 @@ export const resizeRefWith = (
   interact(resizeWith.current).resizable({
       edges: {bottom: true, right: true},
       listeners: {
+        start(event: InteractEvent) {
+          if (startCallback) {
+            startCallback(true);
+          }
+        },
         move(event: InteractEvent) {
           if (resizedRef.current) {
             let {width, height} = event.rect;
             resizedRef.current.style.width = `${width}px`
             resizedRef.current.style.height = `${height}px`
+            console.log("moved")
           }
+        },
+        end(event: InteractEvent) {
+          console.log("end")
+          if (endCallback) {
+            endCallback(false);
+          }
+
+          /* if (endRef && endRef.current && resizedRef.current) {
+            let {width, height} = event.rect;
+            setCanvasSize(endRef.current, {width: width, styleWidth: width, height: height, styleHeight: height});
+            clearCanvas(endRef.current, "white")
+          } */
         }
       }, 
       modifiers: [
@@ -69,70 +91,23 @@ export const resizeRefWith = (
           })
       ]
   })
+}
 
+export const disableResizeRefWith = (
+  resizedRef: React.RefObject<HTMLElement>, 
+) => {
+  if (!resizedRef.current) {
+    return;
+  }
+  interact(resizedRef.current).resizable(false);
+}
+
+export const disableDragRefWith = (
+  resizedRef: React.RefObject<HTMLElement>
+) => {
+  if (!resizedRef.current) {
+    return;
+  }
+  interact(resizedRef.current).draggable(false);
 }
  
-
-/* export const resizeRefWith = (
-    ref: React.RefObject<HTMLElement>, 
-    elementClassName: string,
-    dispatchActionType?: AppAction
-): void => {
-    if (!ref.current) {
-        return;
-    }
-    console.log("Make resizable");
-    interact(elementClassName ? 
-        `.${elementClassName}` : ref.current.className
-      ).resizable({
-        edges: {bottom: true, right: true},
-        listeners: {
-          move(event: InteractEvent) {
-            if (ref.current) {
-              let {width, height} = event.rect;
-              ref.current.style.width = `${width}px`
-              ref.current.style.height = `${height}px`
-            }
-          }
-        }, 
-        modifiers: [
-            interact.modifiers.restrictSize({
-                min: {width: 500, height: 500},
-                max: {width: 1700, height: 980}
-            })
-        ]
-    })
-
-} */
-
-/* export const dragRefWith = (
-    ref: React.RefObject<HTMLElement>, 
-    elementClassName?: string,
-): void => {
-    if (!ref.current) {
-      return;
-    } 
-    console.log("reffed")
-    interact(elementClassName ? 
-        `.${elementClassName}` : ref.current.className
-      ).draggable({
-        listeners: {
-          start(event) {
-
-          },
-          move(event: InteractEvent) {
-            if (ref.current) {
-              const leftInt = parseInt(ref.current.style.left.slice(0, -2))
-              const topInt = parseInt(ref.current.style.top.slice(0, -2))
-              ref.current.style.left = leftInt + event.dx + 'px';
-              ref.current.style.top = topInt + event.dy + 'px';
-            }
-          }
-        }, 
-        modifiers: [
-            interact.modifiers.restrictRect({
-                restriction: {top: 0, left: 0, right: 1000, bottom: 900}
-            })
-        ]
-    })
-} */

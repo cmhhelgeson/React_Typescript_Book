@@ -11,4 +11,3 @@ export type AppAction =
     typeof endStroke |
     typeof undo |
     typeof redo
-

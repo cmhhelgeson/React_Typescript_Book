@@ -1,6 +1,11 @@
-import React, {useEffect, useRef} from "react"
+import React, {useEffect, useRef, useImperativeHandle} from "react"
 
 import { dragRefWith, resizeRefWith} from '../../utils/windowUtils';
+
+
+//Possible ways to forward ref of the window to the App component
+//Method 1 Failed
+//2. Forward the ref from app using React.forwardRef
 
 type GenericXPWindowProps = {
     text: string
@@ -10,7 +15,7 @@ type GenericXPWindowProps = {
 }
 
 export const GenericXPWindow = (
-    {text, children, width, height}: GenericXPWindowProps
+    {text, children, width, height}: GenericXPWindowProps, 
 ) => {
     const windowRef = useRef<HTMLDivElement>(null);
     const titleBarRef = useRef<HTMLDivElement>(null);

@@ -26,7 +26,7 @@ import {
 /* UTILITIES */
 import {clearCanvas, restoreSnapshot, setCanvasSize, drawStroke} from "./utils/drawUtils"
 import { Point, RootState} from './utils/types';
-import {resizeRefWith} from './utils/windowUtils';
+import {resizeRefWith, disableResizeRefWith} from './utils/windowUtils';
 /* COMPONENTS */
 import { ColorPanel } from './components/ColorPanel';
 import { GenericXPWindow } from './components/GenericXPWindow';
@@ -36,16 +36,21 @@ const WIDTH = 100;
 const HEIGHT = 100;
 
 function App() {
-  //JSX Element Refs
+  /* JSX ELEMENT REFS */
+  //#region 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  //#endregion
 
-  //Utilities
+  /* UTILITIES */
+  //#region
   const getCanvasWithContext = (canvas = canvasRef.current) => {
     return {canvas, context: canvas?.getContext("2d")}
   }
+  //#endregion
 
-  //Define state selectors and objects
+  /* REDUX STATE SELECTORS AND OBJECTS */
+  //#region
   const isDrawing = useSelector<RootState>((state) => !!state.currentStroke?.points.length);
   const currentStroke = useSelector(currentStrokeSelector);
   const strokes = useSelector(strokesSelector);
@@ -53,6 +58,7 @@ function App() {
   const historyIndex = useSelector(historyIndexSelector);
   const strokesLength = useSelector(strokesLengthSelector)
   const dispatch = useDispatch();
+  //#endregion
 
 
   //Local State Variables
@@ -60,8 +66,10 @@ function App() {
   const [mouseReTarget, setMouseReTarget] = useState<number>(1) //don't use this
   const[drawScale, setDrawScale] = useState<number>(1);
   const[canvasScaleFactor, setCanvasScaleFactor] = useState<number>(1)
+  const [isDraggingCanvasContainer, setIsDraggingCanvasContainer] = useState<boolean>(false);
 
-  //INTERNAL DRAWING FUNCTIONS
+  /* INTERNAL DRAWING FUNCTIONS */
+  //#region 
   const startDraw = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
     setMouseDown(true);
     const {offsetX, offsetY} = nativeEvent;
@@ -81,8 +89,9 @@ function App() {
     if (!isDrawing) {
       return;
     }
-    dispatch(updateStroke({x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}));
+    dispatch(updateStroke([{x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}]));
   }
+  
 
   const drawComb = ({nativeEvent}: React.MouseEvent<HTMLCanvasElement>) => {
     const {offsetX, offsetY} = nativeEvent;
@@ -93,28 +102,22 @@ function App() {
     if (!canvas || !context) {
       return;
     }
-    //const bristleCount = Math.round(20 / 3);
-    const gap = 20;
-    dispatch(updateStroke({
-      x: (offsetX + 0 * gap) / mouseReTarget, 
-      y: (offsetY + 0 * gap) / mouseReTarget
-    }));
-    dispatch(updateStroke({
-      x: (offsetX + 1 * gap) / mouseReTarget, 
-      y: (offsetY + 1 * gap) / mouseReTarget
-    }));
-    dispatch(updateStroke({
-      x: (offsetX + 2 * gap) / mouseReTarget, 
-      y: (offsetY + 2 * gap) / mouseReTarget
-    }));
-    dispatch(updateStroke({
-      x: (offsetX + 3 * gap) / mouseReTarget, 
-      y: (offsetY + 3 * gap) / mouseReTarget
-    }));
+    const bristleCount = Math.round(20 / 3);
+    const gap = 20 / bristleCount;
+    const points: Point[] = [];
+    for (let i = 0; i < bristleCount; i++) {
+      points.push({
+        x: (offsetX + i * gap) / mouseReTarget, 
+        y: (offsetY + i * gap) / mouseReTarget
+      });
+    }
+    dispatch(updateStroke(points));
 
   }
+  //#endregion
 
   //CANVAS RESIZING AND EXPANSION FUNCTIONS
+  //#region
   const expandCanvas = () => {
     const {canvas, context} = getCanvasWithContext();
     if (!canvas || !context) {
@@ -182,6 +185,7 @@ function App() {
       height: curCanvasHeight, styleHeight: curCanvasHeight / scale}))
     setCanvasScaleFactor(scale);
   }
+  //#endregion
 
   //CONDITIONAL EFFECTS
   useEffect(() => {
@@ -201,10 +205,10 @@ function App() {
     resizeRefWith(
       canvasContainerRef, canvasContainerRef, 
       canvasSize.width, canvasSize.height, 
-      1000, 800 
+      1000, 800, setIsDraggingCanvasContainer, setIsDraggingCanvasContainer
     );
-
   }, [])
+
 
   useEffect(() => {
     const {context} = getCanvasWithContext();
@@ -238,6 +242,20 @@ function App() {
   }, [historyIndex])
 
   useEffect(() => {
+    console.log(isDraggingCanvasContainer);
+    if (!canvasContainerRef || !canvasContainerRef.current || isDraggingCanvasContainer) {
+      return;
+    }
+    disableResizeRefWith(canvasContainerRef);
+    resizeRefWith(canvasContainerRef, 
+      canvasContainerRef, 
+      parseInt(canvasContainerRef.current.style.width.slice(0, -2)), 
+      parseInt(canvasContainerRef.current.style.height.slice(0, -2)),
+      2000, 2000, setIsDraggingCanvasContainer, setIsDraggingCanvasContainer)
+     
+  }, [isDraggingCanvasContainer])
+
+  /*useEffect(() => {
     const {canvas, context} = getCanvasWithContext();
     console.log(canvasSize)
     if (!canvas || !context) {
@@ -278,13 +296,15 @@ function App() {
       }
       img.src = imgSrc;
     }
-  }, [canvasSize])
+  }, [canvasSize]) */
+
 
 
 
 
   return (<div>
-    <GenericXPWindow text={"Paint"}>
+    <GenericXPWindow 
+      text={"Paint"}>
       <div 
         className="canvas_wrapper" 
         style={{
@@ -303,6 +323,7 @@ function App() {
       <button style={{"margin": "20px"}} onClick={zoomOut}>Zoom Out</button>
       <button style={{"margin": "20px"}} onClick={zoomIn}>Zoom In</button>
       <button style={{"margin": "20px"}} onClick={onUndo}>Undo</button>
+      <button style={{"margin": "20px"}} onClick={() => disableResizeRefWith(canvasContainerRef)}>disable resize</button>
     </GenericXPWindow>
     <ColorPanel/>
     </div>

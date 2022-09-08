@@ -18,8 +18,8 @@ const currentStrokeSlice = createSlice({
         beginStroke: (state, action: PayloadAction<Point>) => {
             state.points = [action.payload];
         },
-        updateStroke: (state, action: PayloadAction<Point>) => {
-            state.points.push(action.payload)
+        updateStroke: (state, action: PayloadAction<Point[]>) => {
+            state.points = [...state.points, ...action.payload];
         },
         setStrokeColor: (state, action: PayloadAction<string>) => {
             state.color = action.payload
