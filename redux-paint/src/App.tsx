@@ -66,7 +66,6 @@ function App() {
   const dispatch = useDispatch();
   //#endregion
 
-
   //Local State Variables
   const [mouseDown, setMouseDown] = useState<boolean>(false);
   const [mouseReTarget, setMouseReTarget] = useState<number>(1) //don't use this
@@ -249,26 +248,43 @@ function App() {
   }, [historyIndex])
 
   useEffect(() => {
-    console.log(isDraggingCanvasContainer);
     if (!canvasContainerRef || !canvasContainerRef.current || isDraggingCanvasContainer) {
       return;
     }
     const {canvas, context} = getCanvasWithContext();
-    const width: number = parseInt(canvasContainerRef.current.style.width.slice(0, -2))
-    const height: number = parseInt(canvasContainerRef.current.style.height.slice(0, -2))
-    /* disableResizeRefWith(canvasContainerRef);
-    resizeRefWith(canvasContainerRef, 
-      canvasContainerRef, 
-      width, 
-      height,
-      2000, 2000, setIsDraggingCanvasContainer, setIsDraggingCanvasContainer) */
-    if (!canvas) {
+    const containerWidth: number = parseInt(canvasContainerRef.current.style.width.slice(0, -2))
+    const containerHeight: number = parseInt(canvasContainerRef.current.style.height.slice(0, -2))
+    if (!canvas || !context) {
       return;
     }
+    //Get image and dimensions of previous canvas
+    const imgSrc = canvas.toDataURL();
+    const prevWidth: number = canvas.width;
+    const prevHeight: number = canvas.height
+
+    //Resize canvas to reflect new container
     canvas.style.width = canvasContainerRef.current.style.width;
     canvas.style.height = canvasContainerRef.current.style.height;
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = containerWidth;
+    canvas.height = containerHeight;
+    clearCanvas(canvas, "white");
+    //Apply previous canvas to new canvas
+
+
+    const addedWidth = canvas.width - prevWidth;
+    const addedHeight = canvas.height - prevHeight;
+    let img = new Image();
+    img.onload = () => {
+        context.drawImage(img, 0, 0, 
+          canvas.width - addedWidth, 
+          canvas.height - addedHeight, 
+          0, 0,
+          canvas.width - addedWidth,
+          canvas.height - addedHeight);
+    }
+    img.src = imgSrc;
+
+    
   }, [isDraggingCanvasContainer])
 
 
@@ -279,7 +295,9 @@ function App() {
       100,
       100,
       windowSize.width - 20, 
-      windowSize.height - 40)
+      windowSize.height - 40,
+      setIsDraggingCanvasContainer,
+      setIsDraggingCanvasContainer)
   }, [windowSize])
 
   //#endregion
@@ -334,7 +352,8 @@ function App() {
         className="canvas_wrapper" 
         style={{
           "width": canvasSize.styleWidth, 
-          "height": canvasSize.styleHeight}}
+          "height": canvasSize.styleHeight,
+          "zIndex": 8}}
         ref={canvasContainerRef}
       >
         <canvas 
