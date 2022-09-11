@@ -2,9 +2,7 @@ import React, { ForwardedRef } from "react";
 import interact from "interactjs";
 import {InteractEvent} from "@interactjs/core/InteractEvent"
 import { clearCanvas, setCanvasSize } from "./drawUtils";
-
-
-
+import { useDispatch } from "react-redux";
 
 
 export const dragRefWith = (
@@ -74,12 +72,6 @@ export const resizeRefWith = (
           if (endCallback) {
             endCallback(false);
           }
-
-          /* if (endRef && endRef.current && resizedRef.current) {
-            let {width, height} = event.rect;
-            setCanvasSize(endRef.current, {width: width, styleWidth: width, height: height, styleHeight: height});
-            clearCanvas(endRef.current, "white")
-          } */
         }
       }, 
       modifiers: [

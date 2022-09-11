@@ -28,7 +28,7 @@ canvas {
 
 .edit {
   position: fixed;
-  bottom: 40px;
+  bottom: 200px;
   left: 30%;
   z-index: 10;
 }

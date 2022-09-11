@@ -16,6 +16,11 @@ export type CanvasSize = {
     styleHeight: number
 }
 
+export type WidthHeight = {
+    width: number,
+    height: number
+}
+
 
 export type ShapeToolType = 
     "TRIANGLE_EQUILATERAL" | "TRIANGLE_RIGHT" |
@@ -36,6 +41,7 @@ export type ShapeOutlineType = "NONE" | "SOLID" | "CRAYON" |
 export type RootState = {
     canvasSize: CanvasSize;
     strokes: Stroke[];
-    currentStroke: Stroke
-    historyIndex: number
+    currentStroke: Stroke;
+    historyIndex: number;
+    windowSize: WidthHeight;
 }

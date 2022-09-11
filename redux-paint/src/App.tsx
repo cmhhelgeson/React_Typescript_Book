@@ -29,7 +29,11 @@ import { Point, RootState} from './utils/types';
 import {resizeRefWith, disableResizeRefWith} from './utils/windowUtils';
 /* COMPONENTS */
 import { ColorPanel } from './components/ColorPanel';
+import { EditPanel } from './components/EditPanel';
 import { GenericXPWindow } from './components/GenericXPWindow';
+
+import { useCanvas } from './CanvasContext';
+import { windowSizeSelector } from './features/windowSize/slice';
 
 
 const WIDTH = 100;
@@ -39,6 +43,7 @@ function App() {
   /* JSX ELEMENT REFS */
   //#region 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  //const canvasRef = useCanvas();
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   //#endregion
 
@@ -57,6 +62,7 @@ function App() {
   const canvasSize = useSelector(canvasSizeSelector)
   const historyIndex = useSelector(historyIndexSelector);
   const strokesLength = useSelector(strokesLengthSelector)
+  const windowSize = useSelector(windowSizeSelector);
   const dispatch = useDispatch();
   //#endregion
 
@@ -187,7 +193,8 @@ function App() {
   }
   //#endregion
 
-  //CONDITIONAL EFFECTS
+  /*CONDITIONAL EFFECTS */
+  //#region
   useEffect(() => {
     const {canvas, context} = getCanvasWithContext();
     if (!canvas || !context) {
@@ -246,14 +253,36 @@ function App() {
     if (!canvasContainerRef || !canvasContainerRef.current || isDraggingCanvasContainer) {
       return;
     }
-    disableResizeRefWith(canvasContainerRef);
+    const {canvas, context} = getCanvasWithContext();
+    const width: number = parseInt(canvasContainerRef.current.style.width.slice(0, -2))
+    const height: number = parseInt(canvasContainerRef.current.style.height.slice(0, -2))
+    /* disableResizeRefWith(canvasContainerRef);
     resizeRefWith(canvasContainerRef, 
       canvasContainerRef, 
-      parseInt(canvasContainerRef.current.style.width.slice(0, -2)), 
-      parseInt(canvasContainerRef.current.style.height.slice(0, -2)),
-      2000, 2000, setIsDraggingCanvasContainer, setIsDraggingCanvasContainer)
-     
+      width, 
+      height,
+      2000, 2000, setIsDraggingCanvasContainer, setIsDraggingCanvasContainer) */
+    if (!canvas) {
+      return;
+    }
+    canvas.style.width = canvasContainerRef.current.style.width;
+    canvas.style.height = canvasContainerRef.current.style.height;
+    canvas.width = width;
+    canvas.height = height;
   }, [isDraggingCanvasContainer])
+
+
+  useEffect(() => {
+    disableResizeRefWith(canvasContainerRef);
+    resizeRefWith(canvasContainerRef,
+      canvasContainerRef,
+      100,
+      100,
+      windowSize.width - 20, 
+      windowSize.height - 40)
+  }, [windowSize])
+
+  //#endregion
 
   /*useEffect(() => {
     const {canvas, context} = getCanvasWithContext();
@@ -298,10 +327,6 @@ function App() {
     }
   }, [canvasSize]) */
 
-
-
-
-
   return (<div>
     <GenericXPWindow 
       text={"Paint"}>
@@ -318,14 +343,12 @@ function App() {
           onMouseMove={drawComb}
           ref={canvasRef} />
       </div>
-      <button style={{"margin": "20px"}} onClick={expandCanvas}>Increase Size</button>
-      <button style={{"margin": "20px"}} onClick={shrinkCanvas}>Decrease Size</button>    
       <button style={{"margin": "20px"}} onClick={zoomOut}>Zoom Out</button>
       <button style={{"margin": "20px"}} onClick={zoomIn}>Zoom In</button>
-      <button style={{"margin": "20px"}} onClick={onUndo}>Undo</button>
       <button style={{"margin": "20px"}} onClick={() => disableResizeRefWith(canvasContainerRef)}>disable resize</button>
     </GenericXPWindow>
-    <ColorPanel/>
+    <EditPanel />
+    <ColorPanel />
     </div>
   );
 }

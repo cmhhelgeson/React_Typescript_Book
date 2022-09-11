@@ -1,4 +1,6 @@
-import React, {useEffect, useRef, useImperativeHandle} from "react"
+import React, {useEffect, useRef, useState} from "react"
+import { useDispatch } from "react-redux";
+import { changeWindowSize } from "../../features/windowSize/slice";
 
 import { dragRefWith, resizeRefWith} from '../../utils/windowUtils';
 
@@ -12,6 +14,7 @@ type GenericXPWindowProps = {
     children?: React.ReactNode
     width?: number
     height?: number
+    
 }
 
 export const GenericXPWindow = (
@@ -20,6 +23,11 @@ export const GenericXPWindow = (
     const windowRef = useRef<HTMLDivElement>(null);
     const titleBarRef = useRef<HTMLDivElement>(null);
 
+    const [isWindowResizing, setIsWindowResizing] = useState<boolean>(false);
+
+    const dispatch = useDispatch();
+
+
     //TODO: Find way to change restrictions when browser window is resized
     useEffect(() => {
         dragRefWith(windowRef, titleBarRef)
@@ -27,10 +35,21 @@ export const GenericXPWindow = (
             resizeRefWith(windowRef, windowRef, 
                 parseInt(windowRef.current.style.width.slice(0, -2)), 
                 parseInt(windowRef.current.style.height.slice(0, -2)),
-                window.innerWidth - 100, window.innerHeight - 100
+                window.innerWidth - 100, window.innerHeight - 100,
+                setIsWindowResizing, setIsWindowResizing 
             );
         }
     }, [])
+
+    useEffect(() => {
+        if (isWindowResizing || !windowRef.current) {
+            return;
+        }
+        dispatch(changeWindowSize({
+            width: parseInt(windowRef.current.style.width.slice(0, -2)), 
+            height: parseInt(windowRef.current.style.height.slice(0, -2))
+        }))
+    }, [isWindowResizing])
 
     return (
         <div className="window" style={{

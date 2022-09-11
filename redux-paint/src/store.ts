@@ -3,6 +3,7 @@ import { currentStroke } from "./features/currentStroke/slice";
 import { strokes } from "./features/strokes/slice";
 import { canvasSize } from "./features/canvasSize/slice"
 import { historyIndex } from './features/historyIndex/slice';
+import { windowSize } from './features/windowSize/slice';
 
 
 
@@ -13,6 +14,7 @@ export const store = configureStore({
         strokes,
         canvasSize,
         historyIndex,
+        windowSize,
     },
     devTools: true,
 })

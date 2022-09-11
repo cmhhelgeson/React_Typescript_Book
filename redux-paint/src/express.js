@@ -2,8 +2,6 @@ const axios = require('axios')
 
 const args = process.argv.slice(2);
 
-
-
 const baseUrl = "http://surveyapp.bawtreehostedapps.com/"
 const survey_id = args[0];
 const question_id = args[1];

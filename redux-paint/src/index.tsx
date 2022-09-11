@@ -5,6 +5,9 @@ import App from './App';
 import {store} from "./store"
 import { Provider } from 'react-redux';
 
+//Not sure how this will affect performance
+import { CanvasProvider } from './CanvasContext';
+
 
 const rt = document.documentElement;
 
@@ -16,7 +19,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <CanvasProvider>
+        <App />
+      </CanvasProvider>
     </Provider>
   </React.StrictMode>
 );
