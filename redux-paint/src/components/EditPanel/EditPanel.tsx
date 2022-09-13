@@ -10,6 +10,7 @@ export const EditPanel = () => {
     const dispatch = useDispatch()
     const strokesLength = useSelector(strokesLengthSelector);
 
+
     return (
         <div className="window edit">
             <div className="title-bar">

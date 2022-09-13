@@ -14,6 +14,7 @@ export const dragRefWith = (
     } 
     console.log("reffed")
     interact(draggedWith.current).draggable({
+      maxPerElement: 10,
         listeners: {
           start(event) {
 

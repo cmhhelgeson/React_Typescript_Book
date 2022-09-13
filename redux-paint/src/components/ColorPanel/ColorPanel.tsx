@@ -1,8 +1,7 @@
-import React, {useState, useEffect, useRef} from "react";
+import React from "react";
 import { useAppDispatch } from "../../hooks";
 import './ColorPanel.css'
 import { setStrokeColor } from "../../features/currentStroke/slice";
-import { dragRefWith } from "../../utils/windowUtils";
 
 
 const COLORS = [
@@ -36,27 +35,16 @@ const COLORS = [
     "#ff8040"
   ]
 
-
-
-
 export const ColorPanel = () => {
 
     const dispatch = useAppDispatch();
-    const titleBarRef = useRef<HTMLDivElement>(null);
-    const colorWindowRef = useRef<HTMLDivElement>(null);
-
     const onColorChange = (color: string) => {
         dispatch(setStrokeColor(color));
     }
 
-    useEffect(() => {
-        dragRefWith(colorWindowRef, titleBarRef);
-    }, [])
-
-
     return (
-        <div className="window colors-panel" ref={colorWindowRef}>
-            <div className="title-bar" ref={titleBarRef}>
+        <div className="window colors-panel">
+            <div className="title-bar">
                 <div className="title-bar-text">Colors</div>
             </div>
             <div className="window-body colors">
