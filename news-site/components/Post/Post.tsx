@@ -1,23 +1,23 @@
 import Link from "next/link";
 import {Card, Figure, Title, Excerpt} from "./PostCardStyle"
 
+import {Post} from "../../shared/types"
+
+
+type PostCardProps = {
+    post: Post
+}
 
 //Pass href passes href prop further to the child of Link
-export const PostCard = () => {
+export const PostCard = ({post}: PostCardProps) => {
     return (
-        <Link href="/post/example" passHref>
+        <Link href={`post/${post.id}`} passHref>
             <Card>
                 <Figure>
-                    <img alt="Post photo" src="/image1.jpg" />
+                    <img alt={post.title} src={post.image} />
                 </Figure>
-                <Title>Post title!</Title>
-                <Excerpt>
-                    <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                        sed do eiusmod tempor incididunt ut labore et dolore magna
-                        aliqua.
-                    </p>
-                </Excerpt>
+                <Title>{post.title}</Title>
+                <Excerpt>{post.lead}</Excerpt>
             </Card>
         </Link>
     )
