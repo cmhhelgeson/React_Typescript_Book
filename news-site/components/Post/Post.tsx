@@ -15,7 +15,7 @@ export const PostCard = ({post}: PostCardProps) => {
         <Link href={`post/${post.post_id}`} passHref>
             <Card>
                 <Figure>
-                    <Image alt={post.title} src={post.image}/>
+                    <img alt={post.title} src={post.image}/>
                 </Figure>
                 <Title>{post.title}</Title>
                 <Excerpt>{post.lead}</Excerpt>

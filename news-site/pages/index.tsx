@@ -4,7 +4,7 @@ import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
 import {Post, Category} from "../shared/types"
-import {fetchPosts, fetchCategories} from "../server/summary"
+import {fetchPosts, fetchCategories} from "../api/summary"
 
 import { Feed } from '../components/Feed'
 

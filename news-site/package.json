@@ -6,7 +6,7 @@
   "scripts": {
     "build": "next build",
     "start": "next start",
-    "serve": "ts-node ./server/index.ts",
+    "serve": "set TS_NODE_COMPILER_OPTIONS={\"module\":\"commonjs\"} && ts-node ./server/index.ts",
     "dev": "concurrently --kill-others \"yarn serve\" \"next\""
   },
   "dependencies": {
