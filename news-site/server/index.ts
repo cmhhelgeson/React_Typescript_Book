@@ -1,34 +1,59 @@
 import express from "express"
 import cors from "cors"
 import bodyParser from "body-parser"
-import { Pool } from "pg"
-import { Request, Response } from "express"
+import categories from "./categories.json"
+import posts from "./posts.json"
+//import { Pool } from "pg"
+/* import { Request, Response } from "express"
 import {Post, PostProperties} from "../shared/types"
-import { formatPropsForSQL } from "./utils"
+import { formatPropsForSQL } from "../server/utils"
+import { getErrorMessage } from "./error"
 
-import localPool from "./db"
+import localPool from "./db" */
 
-
-const categories = require("./categories.json")
-const posts = require("./posts.json")
 const app = express();
 app.use(cors);
 app.use(bodyParser);
 
-const port = 4000;
+//const PSQL_DEFAULT_PORT = 5432
+const port = 5000;
 
-const PSQL_DEFAULT_PORT = 5432
-
-//ROUTES
-
-//GET ALL POSTS
-app.get("/posts", async (req, res) => {
-    return res.json(posts)
+app.get("/posts", (req, res) => {
+    return res.json(posts);
 })
 
+app.get("/categories", (req, res) => {
+    return res.json(categories);
+})
 
+app.listen(port, () => {
+    console.log(`DB is running on http://localhost:${port}`)
+})
+
+//ROUTES
+//GET ALL POSTS
+/* app.get("/posts", async (req, res) => {
+    try {
+        const allPosts = await localPool.query("SELECT * from posts");
+        res.json(allPosts.rows);
+    } catch (e) {
+        console.error(getErrorMessage(e));
+    }
+})
+
+//GET ALL CATEGORIES
+app.get("/categories", async(req, res) => {
+    try {
+        const allCategories = await localPool.query("SELECT * from categories");
+        res.json(allCategories.rows)
+    } catch (e) {
+        console.error(getErrorMessage(e));
+    }
+})
+
+//CREATE A POST
 const allPropertiesArr: PostProperties[] = [
-    "id", "description", "title", "date", 
+    "id", "title", "date", 
     "category", "source", "image", "lead",
     "content"
 ];
@@ -37,7 +62,6 @@ const allProperties: string = formatPropsForSQL(allPropertiesArr);
 app.post("/posts", async (req: Request<{}, {}, Post>, res) => {
     const {
         id, 
-        description, 
         title, 
         date, 
         category, 
@@ -46,16 +70,19 @@ app.post("/posts", async (req: Request<{}, {}, Post>, res) => {
         lead, 
         content
     } = req.body;
-    const newPost = await pool.query(
-        `INSERT INTO posts (${allProperties})`
-    )
+    //Placeholder that specifies this description
+    //VALUES ($1) allows us to put in the variables
+    //RETURNING * returns back the data you put in
+    const newPost = await localPool.query(
+        `INSERT INTO posts (${allProperties}) VALUES($1) RETURNING *`, [
+            id, title, date, category, source, image, lead, content
+        ]);
+    //res.json(newPost);
+    //res.json(newsPost.rows)
+    res.json(newPost.rows[0]);
 })
 
 //GET ALL CATEGORIES
 /* app.get("/categories", (_, res) => {
     return res.json(categories)
 }) */
-
-app.listen(port, () => 
-    console.log('DB is running on http://localhost:${port}!')
-)

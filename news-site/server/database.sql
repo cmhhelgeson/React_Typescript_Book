@@ -1,7 +1,7 @@
 CREATE DATABASE NewsSite;
 
 CREATE TABLE posts(
-    post_id SERIAL PRIMARY KEY, 
+    id SERIAL PRIMARY KEY, 
     description VARCHAR(255),
     title VARCHAR(1023),
     date VARCHAR(255),

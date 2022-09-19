@@ -23,7 +23,6 @@ declare const exactType: <T, U>(
 
 export type Post = {
     id: number,
-    description: string,
     title: string,
     date: DateIsoString,
     category: Category,
@@ -35,7 +34,6 @@ export type Post = {
 
 const PostTypeTemplate = {
     id: "",
-    description: "",
     title: "", 
     date: "",
     category: "",

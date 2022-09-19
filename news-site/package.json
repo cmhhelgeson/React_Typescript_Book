@@ -1,39 +1,32 @@
 {
-  "name": "news-site",
-  "version": "0.1.0",
-  "private": true,
+  "name": "news-site-steps",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "serve": "ts-node -O '{\"module\": \"commonjs\"}' ./server/index.ts",
-    "serveDev": "concurrently --kill-others \"yarn serve\" \"next\""
+    "serve": "ts-node ./server/index.ts",
+    "dev": "concurrently --kill-others \"yarn serve\" \"next\""
   },
   "dependencies": {
-    "@types/cors": "^2.8.12",
-    "@types/express": "^4.17.14",
-    "@types/pg": "^8.6.5",
-    "@types/styled-components": "^5.1.26",
-    "body-parser": "^1.20.0",
-    "concurrently": "^7.4.0",
+    "@types/styled-components": "^5.1.15",
+    "axios": "^0.27.2",
+    "body-parser": "^1.19.0",
+    "concurrently": "^6.3.0",
     "cors": "^2.8.5",
-    "express": "^4.18.1",
-    "next": "12.3.0",
-    "node-fetch": "^3.2.10",
+    "express": "^4.17.1",
+    "next": "^12.0.3",
+    "node-fetch": "^3.1.0",
     "pg": "^8.8.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "styled-components": "^5.3.5",
-    "ts-node": "^10.9.1"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "styled-components": "^5.3.3",
+    "ts-node": "^10.4.0"
   },
   "devDependencies": {
-    "@types/node": "^18.7.18",
-    "@types/react": "18.0.19",
-    "@types/react-dom": "18.0.6",
-    "eslint": "8.23.1",
-    "eslint-config-next": "12.3.0",
-    "tslib": "^2.4.0",
-    "typescript": "4.8.3"
+    "@types/node": "^16.11.7",
+    "@types/react": "^17.0.34",
+    "typescript": "^4.4.4"
   }
 }
