@@ -13,12 +13,12 @@ export const Feed = ({posts, categories}: FeedProps) => {
         <>
             {categories.map((category) => {
                 const categoryPosts = posts.filter(
-                    (post) => post.category === category
+                    (post) => post.category === category.text
                 )
                 return (
                     <Section 
-                        key={category}
-                        title={category}
+                        key={category.id}
+                        title={category.text}
                         posts={categoryPosts}
                     />
                 )

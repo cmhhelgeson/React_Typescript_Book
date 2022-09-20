@@ -12,7 +12,7 @@ type PostCardProps = {
 //Pass href passes href prop further to the child of Link
 export const PostCard = ({post}: PostCardProps) => {
     return (
-        <Link href={`post/${post.post_id}`} passHref>
+        <Link href={`post/${post.id}`} passHref>
             <Card>
                 <Figure>
                     <img alt={post.title} src={post.image}/>

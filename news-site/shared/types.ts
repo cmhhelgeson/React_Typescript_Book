@@ -4,7 +4,11 @@ export type URIString = string
 export type UniqueString = string
 export type EntityId = number | UniqueString
 
-export type Category = "Technology" | "Science" | "Arts"
+export type CategoryString = "Technology" | "Science" | "Arts"
+export type Category = {
+    id: EntityId, 
+    text: CategoryString
+}
 
 export type DateIsoString = string 
 
@@ -25,7 +29,7 @@ export type Post = {
     id: number,
     title: string,
     date: DateIsoString,
-    category: Category,
+    category: CategoryString,
     source: string,
     image: string,
     lead: URIString,
