@@ -48,6 +48,19 @@ app.get("/posts", async (req, res) => {
         console.error(getErrorMessage(e));
     }
 })
+
+//GET A SINGLE POST
+app.get("/posts/:id", async (req, res) => {
+  try {
+    const {id} = req.params;
+    const todo = await localPool.query(
+      "SELECT * from posts WHERE id = $1", [id]
+    );
+  } catch (e) {
+    console.error(getErrorMessage(e));
+  }
+
+})
 //GET ALL CATEGORIES
 app.get("/categories", async(req, res) => {
     try {
