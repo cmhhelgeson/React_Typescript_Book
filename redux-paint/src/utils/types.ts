@@ -28,9 +28,9 @@ export type ShapeToolType =
     "ARROW_RIGHT" | "ARROW_LEFT" | "ARROW_DOWN" | "ARROW_UP" |
     "STAR_FOUR_SIDES" | "STAR_FIVE_SIDES" | "STAR_SIX_SIDES" |
     "SPEECH_SQUARE" | "SPEECH_CIRCLE" | "SPEECH_CLOUD" |
-    "HEART" | "LIGHTNING";
+    "HEART" | "LIGHTNING" | "SQUARE";
 
-export type ToolType = ShapeToolType | "PENCIL" |
+export type ToolType = ShapeToolType | "DRAW" | "PENCIL" |
     "FILL" | "TEXT" | "ERASER" | "COLOR_PICKER" |
     "MAGNIFIER";
 
@@ -44,4 +44,5 @@ export type RootState = {
     currentStroke: Stroke;
     historyIndex: number;
     windowSize: WidthHeight;
+    toolType: ToolType
 }

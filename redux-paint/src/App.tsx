@@ -5,7 +5,8 @@ import { useDispatch, useSelector} from 'react-redux';
 import { 
   beginStroke, 
   currentStrokeSelector, 
-  updateStroke
+  updateStroke,
+  updateStrokeSquare
 } from './features/currentStroke/slice';
 import { 
   canvasSizeSelector, 
@@ -19,13 +20,16 @@ import {
   strokesLengthSelector, 
   strokesSelector
 } from './features/strokes/slice';
+import {
+  changeToolType, toolTypeSelector
+} from "./features/toolType/slice"
 import { 
   endStroke 
 } from './features/sharedActions';
 
 /* UTILITIES */
-import {clearCanvas, restoreSnapshot, setCanvasSize, drawStroke} from "./utils/drawUtils"
-import { Point, RootState} from './utils/types';
+import {clearCanvas, restoreSnapshot, setCanvasSize, drawStroke, drawCombStroke, drawSquareStroke} from "./utils/drawUtils"
+import { Point, RootState, ShapeToolType} from './utils/types';
 import {resizeRefWith, disableResizeRefWith} from './utils/windowUtils';
 /* COMPONENTS */
 import { ColorPanel } from './components/ColorPanel';
@@ -63,6 +67,7 @@ function App() {
   const historyIndex = useSelector(historyIndexSelector);
   const strokesLength = useSelector(strokesLengthSelector)
   const windowSize = useSelector(windowSizeSelector);
+  const toolType = useSelector(toolTypeSelector)
   const dispatch = useDispatch();
   //#endregion
 
@@ -72,6 +77,7 @@ function App() {
   const[drawScale, setDrawScale] = useState<number>(1);
   const[canvasScaleFactor, setCanvasScaleFactor] = useState<number>(1)
   const [isDraggingCanvasContainer, setIsDraggingCanvasContainer] = useState<boolean>(false);
+  const [frameBuffer, setFrameBuffer] = useState<string>("");
 
   /* INTERNAL DRAWING FUNCTIONS */
   //#region 
@@ -94,7 +100,11 @@ function App() {
     if (!isDrawing) {
       return;
     }
-    dispatch(updateStroke([{x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}]));
+    if (toolType === "SQUARE") {
+      dispatch(updateStrokeSquare({x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}));
+    } else {
+      dispatch(updateStroke([{x: offsetX / mouseReTarget, y: offsetY / mouseReTarget}]));
+    }
   }
   
 
@@ -217,14 +227,21 @@ function App() {
 
 
   useEffect(() => {
-    const {context} = getCanvasWithContext();
-    if (!context) {
+    const {canvas, context} = getCanvasWithContext();
+    if (!context || !canvas) {
       return;
     }
     console.log(context?.strokeStyle)
-    requestAnimationFrame(() => {
-      drawStroke(context, currentStroke.points, currentStroke.color)
-    })
+    if (toolType === "SQUARE") {
+      requestAnimationFrame(() => {
+        drawSquareStroke(context, currentStroke.points, currentStroke.color, frameBuffer)
+      })
+      
+    } else {
+      requestAnimationFrame(() => {
+        drawCombStroke(canvas, context, currentStroke.points, currentStroke.color)
+      })
+    }
   }, [currentStroke])
 
 
@@ -300,6 +317,39 @@ function App() {
       setIsDraggingCanvasContainer)
   }, [windowSize])
 
+  useEffect(() => {
+    const {canvas, context} = getCanvasWithContext()
+    if (!canvas || !context) {
+      return;
+    }
+    switch(toolType) {
+      //DRAW SHAPE CASES
+      case "ARROW_DOWN":
+      case "ARROW_LEFT":
+      case "ARROW_RIGHT":
+      case "ARROW_UP": 
+      case "DIAMOND":
+      case "HEART": 
+      case "HEXAGON": 
+      case "LIGHTNING":
+      case "PENTAGON":
+      case "SPEECH_CIRCLE":
+      case "SPEECH_CLOUD":
+      case "SPEECH_SQUARE":
+      case "STAR_FIVE_SIDES":
+      case "STAR_FOUR_SIDES":
+      case "SQUARE":
+      case "TRIANGLE_EQUILATERAL":
+      case "TRIANGLE_RIGHT": {
+        setFrameBuffer(canvas.toDataURL());
+      } break;
+      //DRAW CASES
+      case "DRAW": {
+
+      } break;
+    }
+  }, [toolType])
+
   //#endregion
 
   /*useEffect(() => {
@@ -365,6 +415,7 @@ function App() {
       <button style={{"margin": "20px"}} onClick={zoomOut}>Zoom Out</button>
       <button style={{"margin": "20px"}} onClick={zoomIn}>Zoom In</button>
       <button style={{"margin": "20px"}} onClick={() => disableResizeRefWith(canvasContainerRef)}>disable resize</button>
+      <button style={{"margin": "20px"}} onClick={() => dispatch(changeToolType("SQUARE"))}>Square</button>
     </GenericXPWindow>
     <EditPanel />
     <ColorPanel />

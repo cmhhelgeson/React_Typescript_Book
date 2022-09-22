@@ -4,6 +4,7 @@ import { strokes } from "./features/strokes/slice";
 import { canvasSize } from "./features/canvasSize/slice"
 import { historyIndex } from './features/historyIndex/slice';
 import { windowSize } from './features/windowSize/slice';
+import { toolType } from "./features/toolType/slice"
 
 
 
@@ -15,6 +16,7 @@ export const store = configureStore({
         canvasSize,
         historyIndex,
         windowSize,
+        toolType
     },
     devTools: true,
 })

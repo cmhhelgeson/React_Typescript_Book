@@ -23,6 +23,14 @@ const currentStrokeSlice = createSlice({
         },
         setStrokeColor: (state, action: PayloadAction<string>) => {
             state.color = action.payload
+        },
+        updateStrokeSquare: (state, action: PayloadAction<Point>) => {
+            const {x, y} = action.payload;
+            const topLeftPoint = state.points[0];
+            const topRightPoint: Point = {x: x, y: topLeftPoint.y};
+            const bottomLeftPoint: Point = {x: topLeftPoint.x, y: y}
+            const bottomRightPoint: Point = {x: x, y: y};
+            state.points = [topLeftPoint, topRightPoint, bottomRightPoint, bottomLeftPoint];    
         }
     }, 
     extraReducers: (builder) => {
@@ -38,7 +46,8 @@ export const currentStroke = currentStrokeSlice.reducer
 export const {
     beginStroke, 
     updateStroke, 
-    setStrokeColor
+    setStrokeColor,
+    updateStrokeSquare
 } = currentStrokeSlice.actions
 
 export const currentStrokeSelector = (state: RootState) => state.currentStroke

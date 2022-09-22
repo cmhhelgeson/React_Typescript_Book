@@ -1,3 +1,4 @@
+import { getCanvasImage } from "./canvasUtils";
 import {CanvasSize, Point} from "./types"
 
 
@@ -72,7 +73,81 @@ export const drawStroke = (
     //Improves performance
     context.stroke();
     context.closePath();
-  }
+}
+
+
+
+  
+export const drawCombStroke = (
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
+    points: Point[],
+    color: string
+) => {
+    if (!points.length) {
+        return;
+    }
+
+    //Attempting to correctly draw the stroke by directly manipulating the imageData
+    //context.strokeStyle = color;
+    //context.beginPath();
+    //Get the data for the entire canvas
+    const canvasData = context.getImageData(0, 0, canvas.width, canvas.height);
+    //Get RGB data for the first pixel;
+    const prevR = canvasData.data[0];
+    const prevG = canvasData.data[1];
+    const prevB = canvasData.data[2]
+    const prevA = canvasData.data[3];
+    //Fill First Pixel and get RGBA for color
+    context.fillStyle = color
+    context.fillRect(0, 0, 1, 1);
+    const rgba = context.getImageData(0, 0, 1, 1).data;
+    //Fix modified pixel
+    context.fillStyle = `rgba(${prevR}, ${prevG}, ${prevB}, ${prevA})`;
+    context.fillRect(0, 0, 1, 1);
+
+    points.forEach((point) => {
+        const index = (point.x + point.y * canvas.width) * 4
+        canvasData.data[index + 0] = rgba[0];
+        canvasData.data[index + 1] = rgba[1];
+        canvasData.data[index + 2] = rgba[2];
+        canvasData.data[index + 3] = rgba[3];
+    })
+    context.putImageData(canvasData, 0, 0);
+
+    /* context.moveTo(points[0].x, points[0].y)
+    points.forEach((point, idx) => {
+        context.moveTo(point.x, point.y)
+        context.lineTo(point.x, point.y);
+        context.stroke();
+    })
+    context.stroke();
+    context.closePath(); */
+}
+
+export const drawSquareStroke = (
+    context: CanvasRenderingContext2D,
+    points: Point[],
+    color: string,
+    snapshot: string
+) => {
+    const img = new Image();
+    img.onload = () => context?.drawImage(img, 0, 0)
+    img.src = snapshot;
+    context.strokeStyle = color;
+    context.beginPath();
+    context.moveTo(points[0].x, points[0].y);
+    //context.beginPath();
+    points.forEach((point, idx) => {
+      context.lineTo(point.x, point.y);
+    })
+    context.lineTo(points[0].x, points[0].y)
+    //context.closePath();
+    //Callings stroke ater moving the line to new point significantly
+    //Improves performance
+    context.stroke();
+    context.closePath();
+}
 
 
 //export const clearCanvas = fillCanvas(canvas, "white");
