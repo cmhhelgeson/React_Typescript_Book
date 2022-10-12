@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node --inspect src/index.tsx --extensions \".js,.ts,.jsx,.tsx,\""
+    "start": "babel-node --inspect src/index.tsx --extensions \".js,.ts,.jsx,.tsx,\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo/client": "^3.6.9",
+    "@apollo/client": "^3.7.0",
     "@types/react-blessed": "^0.7.1",
     "@types/react-router": "^5.1.18",
     "blessed": "^0.1.81",
